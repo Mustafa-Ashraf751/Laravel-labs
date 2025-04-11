@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostRequest;
 use Illuminate\Http\Request;
 
 use App\Models\Post;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class postsController extends Controller
 {
@@ -40,15 +42,14 @@ class postsController extends Controller
 
 
 
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
-        $validatedRequest =  $request->validate(
-            [
-                'title' => 'required',
-                'description' => 'required',
-                'user_id' => 'required'
-            ]
-        );
+        $validatedRequest =  $request->validated();
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('post-images', 'public');
+            $validatedRequest['image'] = $imagePath;
+        }
 
 
         Post::create($validatedRequest);
@@ -73,19 +74,25 @@ class postsController extends Controller
         ]);
     }
 
-    public function update(Request $request, $postId)
+    public function update(PostRequest $request, $postId)
     {
-        $validatedRequest = $request->validate([
-            'title' => 'required',
-            'description' => 'required',
-            'user_id' => 'required'
-        ]);
+        $validatedRequest = $request->validated();
 
         $post = Post::findOrFail($postId);
 
         if (!$post) {
             return to_route('posts.index');
         }
+        //dd("Storage::disk('public')->exists($post->image)");
+        if ($request->hasFile('image')) {
+            if ($post->image) {
+                Storage::disk('public')->delete($post->image);
+            }
+            $imagePath = $request->file('image')->store('post-images', 'public');
+            $validatedRequest['image'] = $imagePath;
+        }
+
+
 
         $post->update($validatedRequest);
 
@@ -97,6 +104,10 @@ class postsController extends Controller
         $post = Post::with('user')->findOrFail($postId);
 
         $post->formatted_date = $post->created_at->format('l jS \\of F Y h:i:s A');
+
+        if ($post->image && Storage::disk('public')->exists($post->image)) {
+            Storage::disk('public')->delete($post->image);
+        }
 
         return view('posts.delete', [
             'post' => $post
