@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class postsController extends Controller
 {
@@ -17,8 +18,12 @@ class postsController extends Controller
 
         $posts = Post::with('user')->paginate(10);
 
-        return view('posts.home', [
-            'posts' => $posts,
+        // return view('posts.home', [
+        //     'posts' => $posts,
+        // ]);
+
+        return Inertia::render('HomePage', [
+            'posts' => $posts
         ]);
     }
 

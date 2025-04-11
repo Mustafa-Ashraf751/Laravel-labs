@@ -1,5 +1,5 @@
 <x-navbar>
-    <div class="container mx-auto">
+    <div id="blade-app" class="container mx-auto">
         <h1 class="text-2xl font-bold mb-4">ITI Blog</h1>
         <div class="flex justify-between items-center mb-4">
             <a href="{{ route('posts.create') }}"
@@ -25,6 +25,7 @@
                         <td class="px-4 py-2">{{ $post->user->name ?? 'Not Found' }}</td>
                         <td class="px-4 py-2">{{ $post->created_at }}</td>
                         <td class="px-4 py-2">
+                            <view-ajax :id="{{ $post->id }}"></view-ajax>
                             <a href="{{ route('posts.show', $post->id) }}"
                                 class="inline-block px-3 py-1 bg-blue-600 text-white text-sm rounded-md shadow-sm hover:bg-blue-700 transition duration-200">View</a>
                             <a href="{{ route('posts.edit', $post->id) }}"
@@ -41,4 +42,5 @@
             {{ $posts->links() }}
         </div>
     </div>
+    @vite('resources/js/blade-vue.js')
 </x-navbar>

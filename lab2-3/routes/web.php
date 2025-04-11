@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\CommentController;
+use App\Http\Resources\PostResource;
 
 
 Route::get('/', function () {
@@ -37,6 +38,10 @@ Route::middleware('auth')->group(function () {
     // Additional custom routes for comments
     Route::patch('/comments/{comment}/restore', [CommentController::class, 'restore'])->name('comments.restore');
     Route::delete('/comments/{comment}/force-delete', [CommentController::class, 'forceDelete'])->name('comments.force-delete');
+
+    Route::get('/posts/{post}/data', function (\App\Models\Post $post) {
+        return new PostResource($post);
+    })->name('posts.data');
 });
 
 
